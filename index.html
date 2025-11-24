@@ -205,6 +205,11 @@
       margin-top: 3vh;
     }
 
+    ol {
+      padding-left: 0;
+      list-style-position: inside;
+    }
+
     ol ol,
     ul ul {
       margin-top: 3vh;
@@ -237,16 +242,11 @@
       position: relative;
       justify-content: center;
       align-items: center;
-    }
-
-    section.full-image img {
-      width: 100vw;
-      max-height: 100vh;
-      max-width: 100vw;
+      background-size: cover;
     }
 
     section.full-image h2 {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.8);
       position: absolute;
       z-index: 2;
       border-radius: 20px;
@@ -289,25 +289,22 @@
       </ul>
     </section>
 
-    <section class="full-image">
-      <h2>Cuando los dinosaurios reinaban sobre el planeta...</h2>
-      <img src="./assets/dinosaurs.jpg.webp" />
+    <section class="full-image" style="background-image: url('assets/once.jpg')">
+      <h2>Érase una vez...</h2>
     </section>
 
-    <section class="full-image">
-      <h2>...una gran corporación quería desarrollar un conjunto de frameworks para aumentar la productividad de sus equipos de desarrollo...</h2>
-      <img src="./assets/inditex.jpg" />
+    <section class="full-image" style="background-image: url('assets/inditex.jpg')">
+      <h2>...una gran corporación que quería desarrollar un conjunto de frameworks para aumentar la productividad de sus equipos de desarrollo.</h2>
     </section>
 
     <section>
       <h2>Qué "querían"</h2>
       <ul>
         <li>Soporte para crear microservicios Java/Node y SPAs con JS/React.</li>
-        <li>Reducir el boilerplate (lo que ya tenían)</li>
-        <li>Rebajar la barrera de entrada a sus múltiples equipos con perfiles "variados"</li>
-        <li>Componentes adaptados a sus casos de uso, y a la corporación (imagen, infraestructura).</li>
-        <li>Soporte de utilidades transversales: observabilidad, autenticación, i18n, etc.</li>
-        <li>Desplegable en un PaaS (con todo bien integradito).</li>
+        <li>Reducir el boilerplate (el problema que tenían).</li>
+        <li>Rebajar la barrera de entrada a sus múltiples equipos de "perfiles variados".</li>
+        <li>Componentes adaptados a sus casos de uso y a la corporación (imagen corporativa, infraestructura común).</li>
+        <li>Desplegable en la nube (con todo bien integrado).</li>
       </ul>
     </section>
 
@@ -315,38 +312,28 @@
       <h2>Qué les dimos</h2>
       <ul>
         <li>Una serie de abstracciones rígidas que simplifican el desarrollo.</li>
-        <li>Todas las apps/servicios son similares, solo cambia la lógica de negocio.</li>
-        <li>Desplegable en su PaaS (todo bien integrado).</li>
+        <li>Todas las apps/servicios son similares, comparten imagen e infraestructura común. Solo cambia la lógica de negocio.</li>
+        <li>Desplegable en su nube (todo bien integrado).</li>
       </ul>
     </section>
 
-    <section class="disclaimer">
-      <p>
-        Vamos a ver mayoritariamente ejemplos del framework de microservicios por simplicidad, ya que no depende de React y basta
-        con tener nociones de JavaScript.
-      </p>
-      <p>
-        Hemos simplificado el código para no liar a nadie.
-      </p>
-    </section>
+
 
     <section class="source">
       <pre><code class="language-js">
+        // Quiero un microservicio que en el endpoint /products
+        // devuelve una lista de productos, cuyos datos salen
+        // de una API REST de items, que hay que procesar.
+
         service()
           .use(auth())
           .mount(router()
-            .get("/some-data",
-              fetchJson("http://some-url"),
-              status.ok(),
-              sendBody()
+            .get("/products",
+              fetchJson("http://api/items"),
+              transform(mapItemToProduct)
             )
           )
-          .listen()
-      </code></pre>
-    </section>
 
-    <section class="source">
-      <pre><code class="language-yaml">
       service:
         port: 3000
         auth:
@@ -354,10 +341,8 @@
         log:
           level: DEBUG
           transports:
-            - console
             - kafka
         tracing:
-          enabled: true
           threshold: 0.5
       </code></pre>
     </section>
@@ -369,51 +354,12 @@
         <li>Se entrega un producto que los cumple.</li>
         <li>El producto "no vale". Las abstracciones son muy rígidas. Los requisitos estan mal. Todo debe ser más flexible.</li>
         <li>Se sugiere una nueva major con abstracciones más simples.</li>
-        <li>"Hay que poner en valor lo que hay". Se extienden las abstracciones para hacerlas "configurables"</li>
+        <li>"Hay que poner en valor lo que hay". Se extienden las abstracciones para hacerlas "configurables".</li>
       </ol>
     </section>
 
-    <section class="full-image">
-      <h2>FUCK!</h2>
-      <img src="./assets/facepalm.png.webp" />
-    </section>
-
-    <section class="source">
-      <pre><code class="language-js">
-        function fetchJson(url) {
-          return async middleware(ctx, next) {
-            try {
-              const res = await fetchClient(url);
-              const json = await res.json();
-              ctx.state.data = json;
-              await next();
-            } catch (e) {
-              ctx.status = 500;
-            }
-          }
-        }
-      </code></pre>
-    </section>
-
-    <section class="source">
-      <pre><code class="language-js">
-        async function defaultOnError(e, ctx, next) {
-          ctx.status = 500;
-        }
-
-        function fetchJson(url, { onError = defaultOnError } = {}) {
-          return async middleware(ctx, next) {
-            try {
-              const res = await fetchClient(url);
-              const json = await res.json();
-              ctx.state.data = json;
-              await next();
-            } catch (e) {
-              await onError(e, ctx, next);
-            }
-          }
-        }
-      </code></pre>
+    <section class="full-image" style="background-image: url('assets/facepalm.png.webp')">
+      <h2>Noooooo!</h2>
     </section>
 
     <section class="source">
@@ -421,19 +367,21 @@
         service()
           .use(auth())
           .mount(router()
-            .get("/some-data",
-              fetchJson("http://some-url", {
+            .get("/products",
+              fetchJson("http://api/items", {
                 onError: async (e,ctx, next) => {
-                  ctx.state.data = {};
+                  ctx.state.data = [];
                   await next();
                 }
-              }),
-              status.ok(),
-              sendBody()
+              })
             )
           )
-          .listen()
       </code></pre>
+    </section>
+
+    <section>
+      <h1>Framework</h1>
+      <h2>API <small>+ implementación</small></h2>
     </section>
 
     <section>
@@ -448,10 +396,10 @@
     <section>
       <h2>¿Hacer algo distinto?</h2>
       <ul>
-        <li>Implementar casos de uso super particulares.</li>
+        <li>Implementar casos de uso particulares.</li>
         <li>Usar infraestructura diferente.</li>
         <li>Desplegar en otro entorno.</li>
-        <li>Usar partes sueltas del framework</li>
+        <li>Usar partes sueltas del framework.</li>
       </ul>
     </section>
 
@@ -461,19 +409,44 @@
       </h2>
     </section>
 
+
     <section>
       <h2>La abstracción correcta</h2>
       <ul>
-        <li>Nuestras APIs cubren el caso de uso base, con inyección de dependencias.</li>
+        <li>Nuestras APIs cubren el caso de uso base.</li>
         <li>Los equipos pueden hacer lo que les da la gana. Usarlo o no usarlo.</li>
-        <li>El caso general se cubre con: wrappers, boilerplate extraido a librerías, patrones de uso y documentación.</li>
+        <li>El caso general se cubre con: wrappers o boilerplate extraido a librerías (con inyección de dependencias), patrones de uso y documentación.</li>
       </ul>
     </section>
 
+    <section class="source">
+      <pre><code class="language-js">
+      //before
+      fetchJson("http://api/items")
+
+      // after
+      fetchData(() => fetchClient.json("http://api/items"))
+      </code></pre>
+    </section>
 
     <section class="source">
       <pre><code class="language-js">
-        Ejemplo de una API moderna.
+        // before
+        fetchJson("http://api/items", {
+          onError: async (e,ctx, next) => {
+            ctx.state.data = []
+            await next();
+          }
+        })
+
+        // after
+        fetchData(async () => {
+          try {
+            return await fetchClient.json("http://api/items");
+          } catch {
+            return [];
+          }
+        })
       </code></pre>
     </section>
 
@@ -484,17 +457,88 @@
         <li>Se entrega un producto que los cumple.</li>
         <li>El producto "no vale". Las abstracciones son muy rígidas. Los requisitos estan mal. Todo debe ser más flexible.</li>
         <li>Se sugiere una nueva major con abstracciones más simples.</li>
-        <li>"Hay que poner en valor lo que hay". Se extienden las abstracciones para hacerlas "configurables"</li>
-        <li>Vamos a pivotar. La IA escribe el boilerplate. Necesitamos un framework de piezas sencillas</li>
+        <li>"Hay que poner en valor lo que hay". Se extienden las abstracciones para hacerlas "configurables".</li>
+        <li>Vamos a pivotar. Una "IA" escribe el boilerplate. Necesitamos un framework de piezas sencillas.</li>
         <li>Se pide una major con abstracciones más simples, pero "hay que poner en valor lo que hay".</li>
       </ol>
     </section>
 
-    <section class="full-image">
-      <h2>FUCK! FUCK! FUCK!</h2>
-      <img src="./assets/facepalm.png.webp" />
+    <section class="full-image" style="background-image: url('assets/facepalm.png.webp')">
+      <h2>No, no, no, nooooo!</h2>
     </section>
 
+    <section>
+      <h2 style="align-self: center">La "IA" escribe el boilerplate</h2>
+      <img src="assets/thinking.png" style="margin-top: 10vh; align-self: center; max-height: 50vh"/>
+    </section>
+
+    <section class="blue">
+      <h1>Las tecnologías equivocadas</h1>
+    </section>
+
+    <section>
+      <h2>Estar en la cresta de la ola</h2>
+      <img src="./assets/waves.jpg" style="margin-top: 5vh; width: 90vw; max-height: 70vh"/>
+    </section>
+
+    <section>
+      <h2>IA pros</h2>
+      <ul>
+        <li>Si funcionase, todos. 😬</li>
+        <li>El "business" (¡viva el hype!).</li>
+        <li>Barrera de entrada baja.</li>
+        <li>UIs de lenguaje natural.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>IA cons (1)</h2>
+      <ul>
+        <li>Problema de escala.</li>
+        <ul>
+          <li>Volumen de datos: latrocinio y explotación.</li>
+          <li>Gasto energético: ecología.</li>
+          <li>Volumen de inversión: ¿retorno?
+        </ul>
+        <li style="margin-top: 5vh">Herramienta para todo y para nada.
+          <ul>
+            <li>Fuerza bruta (golden hammer).</li>
+            <li>Halucinaciones.</li>
+            <li>Slop.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>IA cons (2)</h2>
+      <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 6vh">
+        <ul>
+          <li>Tecnofascimos.
+            <ul>
+              <li>No es opt-in (ni opt-out).</li>
+              <li>Deskilling (en el más amplio sentido).</li>
+              <li>Delegación de responsabilidad.</li>
+              <li>Adicción.</li>
+              <li>Democratización (my ass).</li>
+            </ul>
+          </li>
+        </ul>
+        <div>
+          <img src="assets/altman.jpg" style="width: 40vw">
+          <a href="https://www.derekthompson.org/p/is-this-the-new-scariest-chart-in"><small>Is This the New ‘Scariest Chart in the World’?</small></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="disclaimer">
+      <h2>TL;DR</h2>
+      <h3>Ética vs capitalismo</h3>
+    </section>
+
+    <section class="black">
+      ¿Y vosotros qué haríais?
+    </section>
 
     <section class="reflect">
       <h2>Para reflexionar</h2>
@@ -511,7 +555,7 @@
         <li>
           On the Dangers of Stochastic Parrots: Can Language Models Be Too Big? 🦜
           <br/>
-          <a href="https://dl.acm.org/doi/10.1145/3442188.3445922"><small>https://dl.acm.org/doi/10.1145/3442188.3445922</small></a>
+          <a href="https://dl.acm.org/doi/10.1145/3442188.3445922"><small>https://dl.acm.org/doi/10.1145/3442188.3445922</small></a> (marzo 2021)
         </li>
         <li>
           The TESCREAL bundle: Eugenics and the promise of utopia through artificial general intelligence
